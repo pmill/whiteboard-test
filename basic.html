@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Whiteboard</title>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+    <style>
+        body, html {
+            margin: 0;
+            background-color: white;
+        }
+
+        .whiteboard {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #canvas {
+            flex-grow: 1;
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .colour-picker {
+            width: 62px;
+        }
+
+        .colour-picker button    {
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+            border: 2px solid #888;
+        }
+
+        .side-toolbar {
+            width: 60px;
+        }
+
+        .toolbar button {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 2px;
+            background-color: white;
+            border-radius: 4px;
+            vertical-align: middle;
+        }
+
+        .toolbar button img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .bottom-toolbar {
+            height: 60px;
+            width: 1126px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bottom-toolbar .brushes {
+            margin-right: 120px;
+            display: flex;
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        .bottom-toolbar .brushes button {
+            text-align: center;
+            width: 50px;
+            height: 300px;
+            background-color: transparent;
+            border: 0;
+            position: relative;
+            margin: 0 8px;
+        }
+
+        .bottom-toolbar .brushes button img {
+            width: 100%;
+            position: absolute;
+            bottom: 80px;
+        }
+    </style>
+</head>
+<body>
+<div class="whiteboard">
+    <div style="display: flex; justify-content: center; flex-grow: 1;">
+        <div class="side-toolbar toolbar">
+<!--            <button-->
+<!--                type="button"-->
+<!--                onclick="whiteboard.setCurrentTool('Pencil');"-->
+<!--            >-->
+<!--                <img src="icons/Edit-Icon.png">-->
+<!--            </button>-->
+            <button
+                type="button"
+                onclick="whiteboard.setCurrentTool('Text');"
+            >
+                <img src="icons/View-Comments-Icon.png">
+            </button>
+            <button
+                type="button"
+                onclick="whiteboard.setCurrentTool('Image'); whiteboard.startDrawing()"
+            >
+                <img src="icons/Add-Photo-Video-Icon.png">
+            </button>
+            <button
+                type="button"
+                onclick="whiteboard.setCurrentTool('Video'); whiteboard.startDrawing()"
+            >
+                <img src="icons/Video-Icon.png">
+            </button>
+            <button
+                type="button"
+                onclick="whiteboard.setCurrentTool('Bucket');"
+            >
+                <img src="icons/Filter-Icon.png">
+            </button>
+        </div>
+
+        <div id="canvas">
+
+        </div>
+
+        <div class="colour-picker" id="colourPicker">
+        </div>
+    </div>
+
+    <div class="bottom-toolbar toolbar">
+        <div>
+            <button
+                type="button"
+                onclick="whiteboard.saveImage('my-image.png');"
+            >
+                <img src="icons/Post-Icon.png">
+            </button>
+            <button
+                type="button"
+                onclick="whiteboard.setCurrentTool('Eraser');"
+            >
+                <img src="icons/Edit-Icon.png">
+            </button>
+            <button
+                    type="button"
+                    onclick="whiteboard.clear();"
+            >
+                <img src="icons/Switch-Hub-Icon.png">
+            </button>
+
+            <button
+                type="button"
+                onclick="whiteboard.setCurrentTool('Square'); whiteboard.startDrawing()"
+            >
+                Sq
+            </button>
+
+            <button
+                type="button"
+                onclick="whiteboard.setCurrentTool('Circle'); whiteboard.startDrawing()"
+            >
+                Ci
+            </button>
+
+            <button
+                type="button"
+                onclick="whiteboard.setCurrentTool('Triangle'); whiteboard.startDrawing()"
+            >
+                Tr
+            </button>
+        </div>
+
+        <div class="brushes">
+            <button
+                type="button"
+                onclick="whiteboard.options.lineWidth = 2; whiteboard.setCurrentTool('Pencil')"
+                style="width: 20px;"
+            >
+                <img src="icons/brush-1.png">
+            </button>
+
+            <button
+                type="button"
+                onclick="whiteboard.options.lineWidth = 17; whiteboard.setCurrentTool('Pencil')"
+                style="width: 30px;"
+            >
+                <img src="icons/brush-4.png">
+            </button>
+
+            <button
+                type="button"
+                onclick="whiteboard.options.lineWidth = 7; whiteboard.setCurrentTool('Pencil')"
+                style="width: 24px;"
+            >
+                <img src="icons/brush-2.png">
+            </button>
+
+            <button
+                type="button"
+                onclick="whiteboard.options.lineWidth = 12; whiteboard.setCurrentTool('Pencil')"
+                style="width: 27px;"
+            >
+                <img src="icons/brush-3.png">
+            </button>
+
+            <button
+                type="button"
+                onclick="whiteboard.options.lineWidth = 22; whiteboard.setCurrentTool('Pencil')"
+                style="width: 40px;"
+            >
+                <img src="icons/brush-5.png">
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="../dist/index.js"></script>
+
+<script>
+    function setupColourPicker(whiteboard) {
+        var colourPickerElement = document.getElementById('colourPicker');
+        var colourCount = 50;
+
+        for (var i = 0; i < colourCount; i++) {
+            var randomColor = '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
+
+            var colourButton = document.createElement('button')
+            colourButton.type = 'button';
+            colourButton.dataset.colour = randomColor;
+            colourButton.style.backgroundColor = randomColor;
+
+            colourButton.addEventListener('click', function () {
+                whiteboard.options.colour = this.dataset.colour;
+            });
+
+            colourPickerElement.appendChild(colourButton);
+        }
+    }
+
+    var whiteboard;
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        whiteboard = new Natterhub.Whiteboard('canvas');
+        setupColourPicker(whiteboard);
+    });
+</script>
+</body>
+</html>
